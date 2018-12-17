@@ -1,0 +1,86 @@
+<!Doctype html>
+	<html>
+	  <head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device=width">
+		<title>Pod_Space</title>
+		<style>#game{border:1px;background-color:red;position:absolute;margin:50px;padding-left:200px;padding-bottom:200px;padding-right:200px;padding-top:200px;}</style>
+	  </head>
+        	<body>
+		    <h1 style="text-align:center;color:blue;">Pod-SpaceJourney</h1>
+			  <canvas id="game"></canvas>
+			  <script>	
+				main();
+				function main(){
+				  var webCanvas=document.getElementById("game");
+				  var gl=initWebGL(webCanvas);
+				  initViewport(gl,webCanvas);
+				  var object=createSquare(gl);
+				  initMatrix();
+				  draw(gl,object);			
+				}
+				function initWebGL(canvas){
+				  var gl;
+				   try{
+				     gl= canvas.getContext("webgl");}
+				   catch(e){var error="webgl n't started on this machine" +     					e.toString(); alert(error); throw Error(error);}
+				   return gl;
+				}
+				function initViewport(gl,canvas){
+				  gl.viewport(0,0,canvas.width,canvas.height);
+				}
+				function createSquare(gl){
+				 var vertexBuffer;
+				    vertexBuffer=gl.createBuffer();
+				 gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer);
+				 var verts=[0.5,0.5,0.0,
+					    -0.5,0.5,0.0,
+					    0.5,-0.5,0.0,
+					   -0.5,-0.5,0.0];
+				gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),
+				gl.STATIC_DRAW);
+				var square={buffer:vertexBuffer,vertSize:3,nVerts:4,
+				primtype:gl.TRIANGLE_STRIP};
+				return square;
+				}
+				function initMatrix(){
+				 modelViewMatrix=new 				 						Float32Array([1,0,0,0,
+						      0,1,0,0,
+						      0,0,1,0,
+						      0,0,-3.333,1]);
+				 projectionMatrix=new Float32Array([
+								    2.41421,0,0,0,
+								    0,2.41421,0,0,
+								    0,0,-1.002002,-1,
+								    0,0,-0.2002002,0]);
+				}
+				var vertexShaderSource=
+					"attribute vec3 vertexPosition;\n"+
+					"uniform mat4 modelViewMatrix;\n"+
+					"uniform mat4 projectionMatrix;\n"+
+					"void main(void){\n"+
+						"gl_Position=projectionMatrix * modelViewMatrix\n"+
+						"vec4(vertexPos,1.0);\n"+
+				  	"}\n";
+				 var fragementShaderSource=
+					"void main(void){\n"+
+						"gl_FragColor=vec4(1.0,1.0,1.0,1.0);\n"+
+						"}\n";
+				function draw(gl, object){
+				   gl.clearColor(0.0,0.0,0.0,1.0);
+				   gl.clear(gl.COLOR_BUFFER_BIT);
+				   gl.bindBuffer(gl.ARRAY_BUFFER,object.buffer);
+				   gl.useProgram(shaderProgram);
+				   gl.vertexAttribPointer(shaderPositionVertexAttribute,
+				    object.vertSize,gl.Float,false,0,0);
+				   gl.uniformMatrix4fv(shaderProjectionMatrixUniform,
+				    false,projectionMatrix);
+				   gl.uniformMatrix4fv(shaderProjectionMatrixUniform,false,
+				     modelViewMatrix);
+				   gl.drawArray(object.primtype,0,object.nVerts);
+				}	
+			  </script>
+		    
+			                         
+		</body>
+	</html>
